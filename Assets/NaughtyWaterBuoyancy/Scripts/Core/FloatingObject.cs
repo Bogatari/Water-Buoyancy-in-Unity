@@ -59,7 +59,7 @@ namespace NaughtyWaterBuoyancy
                 for (int i = 0; i < this.voxels.Length; i++)
                 {
                     Vector3 worldPoint = this.transform.TransformPoint(this.voxels[i]);
-                    
+
                     float waterLevel = this.water.GetWaterLevel(worldPoint);
                     float deepLevel = waterLevel - worldPoint.y + (voxelHeight / 2f); // How deep is the voxel                    
                     float submergedFactor = Mathf.Clamp(deepLevel / voxelHeight, 0f, 1f); // 0 - voxel is fully out of the water, 1 - voxel is fully submerged
@@ -116,11 +116,29 @@ namespace NaughtyWaterBuoyancy
 
         private Vector3 CalculateMaxBuoyancyForce()
         {
-            float objectVolume = this.rigidbody.mass  / this.density;
+            float objectVolume = this.rigidbody.mass / this.density;
             Vector3 maxBuoyancyForce = this.water.Density * objectVolume * -Physics.gravity;
 
             return maxBuoyancyForce;
         }
+
+        //private Vector3 CalculateMaxBuoyancyForce()
+        //{
+        //    float displacedWaterVolume = 0f;
+        //    for (int i = 0; i < this.voxels.Length; i++)
+        //    {
+        //        Vector3 worldPoint = this.transform.TransformPoint(this.voxels[i]);
+        //        float waterLevel = this.water.GetWaterLevel(worldPoint);
+        //        if (worldPoint.y < waterLevel)
+        //        {
+        //            float voxelVolume = Mathf.Abs(Vector3.Dot(this.voxelSize, this.water.transform.up));
+        //            float voxelSubmergedVolume = Mathf.Abs(worldPoint.y - waterLevel) * this.voxelSize.x * this.voxelSize.z;
+        //            displacedWaterVolume += voxelSubmergedVolume / voxelVolume;
+        //        }
+        //    }
+        //    Vector3 maxBuoyancyForce = -this.water.Density * Physics.gravity.y * displacedWaterVolume * this.water.transform.up;
+        //    return maxBuoyancyForce;
+        //}
 
         private Vector3[] CutIntoVoxels()
         {

@@ -1,113 +1,114 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿//using UnityEditor;
+//using UnityEngine;
 
-namespace NaughtyWaterBuoyancy.Editor
-{
-    [CustomEditor(typeof(WaterVolume))]
-    public class WaterVolumeEditor : UnityEditor.Editor
-    {
-        private const float BOX_COLLIDER_HEIGHT = 5f;
+//namespace NaughtyWaterBuoyancy.Editor
+//{
+//    [CustomEditor(typeof(WaterVolume))]
+//    public class WaterVolumeEditor : UnityEditor.Editor
+//    {
+//        private const float BOX_COLLIDER_HEIGHT = 5f;
 
-        private WaterVolume waterVolumeTarget;
-        private SerializedProperty density;
-        private SerializedProperty rows;
-        private SerializedProperty columns;
-        private SerializedProperty quadSegmentSize;
-        //private SerializedProperty debugTrans;
+//        private WaterVolume waterVolumeTarget;
 
-        [MenuItem("NaughtyWaterBouyancy/Create Water Mesh")]
-        private static void CreateMesh()
-        {
-            Mesh mesh = WaterMeshGenerator.GenerateMesh(5, 5, 1f);
-            AssetDatabase.CreateAsset(mesh, "Assets/NaughtyWaterBuoyancy/Models/Water Mesh.asset");
-        }
+//        private SerializedProperty density;
+//        private SerializedProperty rows;
+//        private SerializedProperty columns;
+//        private SerializedProperty quadSegmentSize;
+//        //private SerializedProperty debugTrans;
 
-        protected virtual void OnEnable()
-        {
-            this.waterVolumeTarget = (WaterVolume)this.target;
+//        [MenuItem("NaughtyWaterBouyancy/Create Water Mesh")]
+//        private static void CreateMesh()
+//        {
+//            Mesh mesh = WaterMeshGenerator.GenerateMesh(5, 5, 1f);
+//            AssetDatabase.CreateAsset(mesh, "Assets/NaughtyWaterBuoyancy/Models/Water Mesh.asset");
+//        }
 
-            this.density = this.serializedObject.FindProperty("density");
-            this.rows = this.serializedObject.FindProperty("rows");
-            this.columns = this.serializedObject.FindProperty("columns");
-            this.quadSegmentSize = this.serializedObject.FindProperty("quadSegmentSize");
-            //this.debugTrans = this.serializedObject.FindProperty("debugTrans");
+//        protected virtual void OnEnable()
+//        {
+//            this.waterVolumeTarget = (WaterVolume)this.target;
 
-            Undo.undoRedoPerformed += this.OnUndoRedoPerformed;
-        }
+//            this.density = this.serializedObject.FindProperty("density");
+//            this.rows = this.serializedObject.FindProperty("rows");
+//            this.columns = this.serializedObject.FindProperty("columns");
+//            this.quadSegmentSize = this.serializedObject.FindProperty("quadSegmentSize");
+//            //this.debugTrans = this.serializedObject.FindProperty("debugTrans");
 
-        protected virtual void OnDisable()
-        {
-            Undo.undoRedoPerformed -= this.OnUndoRedoPerformed;
-        }
+//            Undo.undoRedoPerformed += this.OnUndoRedoPerformed;
+//        }
 
-        public override void OnInspectorGUI()
-        {
-            this.serializedObject.Update();
+//        protected virtual void OnDisable()
+//        {
+//            Undo.undoRedoPerformed -= this.OnUndoRedoPerformed;
+//        }
 
-            EditorGUILayout.PropertyField(this.density);
+//        public override void OnInspectorGUI()
+//        {
+//            this.serializedObject.Update();
 
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(this.rows);
-            EditorGUILayout.PropertyField(this.columns);
-            EditorGUILayout.PropertyField(this.quadSegmentSize);
-            if (EditorGUI.EndChangeCheck())
-            {
-                this.rows.intValue = Mathf.Max(1, this.rows.intValue);
-                this.columns.intValue = Mathf.Max(1, this.columns.intValue);
-                this.quadSegmentSize.floatValue = Mathf.Max(0f, this.quadSegmentSize.floatValue);
+//            EditorGUILayout.PropertyField(this.density);
 
-                this.UpdateMesh(this.rows.intValue, this.columns.intValue, this.quadSegmentSize.floatValue);
-                this.UpdateBoxCollider(this.rows.intValue, this.columns.intValue, this.quadSegmentSize.floatValue);
-            }
+//            EditorGUI.BeginChangeCheck();
+//            EditorGUILayout.PropertyField(this.rows);
+//            EditorGUILayout.PropertyField(this.columns);
+//            EditorGUILayout.PropertyField(this.quadSegmentSize);
+//            if (EditorGUI.EndChangeCheck())
+//            {
+//                this.rows.intValue = Mathf.Max(1, this.rows.intValue);
+//                this.columns.intValue = Mathf.Max(1, this.columns.intValue);
+//                this.quadSegmentSize.floatValue = Mathf.Max(0f, this.quadSegmentSize.floatValue);
 
-            //EditorGUILayout.PropertyField(this.debugTrans);
+//                this.UpdateMesh(this.rows.intValue, this.columns.intValue, this.quadSegmentSize.floatValue);
+//                this.UpdateBoxCollider(this.rows.intValue, this.columns.intValue, this.quadSegmentSize.floatValue);
+//            }
 
-            this.serializedObject.ApplyModifiedProperties();
-        }
+//            //EditorGUILayout.PropertyField(this.debugTrans);
 
-        private void UpdateMesh(int rows, int columns, float quadSegmentSize)
-        {
-            if (Application.isPlaying)
-            {
-                return;
-            }
+//            this.serializedObject.ApplyModifiedProperties();
+//        }
 
-            MeshFilter meshFilter = this.waterVolumeTarget.GetComponent<MeshFilter>();
-            Mesh oldMesh = meshFilter.sharedMesh;
+//        private void UpdateMesh(int rows, int columns, float quadSegmentSize)
+//        {
+//            if (Application.isPlaying)
+//            {
+//                return;
+//            }
 
-            Mesh newMesh = WaterMeshGenerator.GenerateMesh(rows, columns, quadSegmentSize);
-            newMesh.name = "Water Mesh Instance";
+//            MeshFilter meshFilter = this.waterVolumeTarget.GetComponent<MeshFilter>();
+//            Mesh oldMesh = meshFilter.sharedMesh;
 
-            meshFilter.sharedMesh = newMesh;
+//            Mesh newMesh = WaterMeshGenerator.GenerateMesh(rows, columns, quadSegmentSize);
+//            newMesh.name = "Water Mesh Instance";
 
-            EditorUtility.SetDirty(meshFilter);
+//            meshFilter.sharedMesh = newMesh;
 
-            if (oldMesh != null && !AssetDatabase.Contains(oldMesh))
-            {
-                DestroyImmediate(oldMesh);
-            }
-        }
+//            EditorUtility.SetDirty(meshFilter);
 
-        private void UpdateBoxCollider(int rows, int columns, float quadSegmentSize)
-        {
-            var boxCollider = this.waterVolumeTarget.GetComponent<BoxCollider>();
-            if (boxCollider != null)
-            {
-                Vector3 size = new Vector3(columns * quadSegmentSize, BOX_COLLIDER_HEIGHT, rows * quadSegmentSize);
-                boxCollider.size = size;
+//            if (oldMesh != null && !AssetDatabase.Contains(oldMesh))
+//            {
+//                DestroyImmediate(oldMesh);
+//            }
+//        }
 
-                Vector3 center = size / 2f;
-                center.y *= -1f;
-                boxCollider.center = center;
+//        private void UpdateBoxCollider(int rows, int columns, float quadSegmentSize)
+//        {
+//            var boxCollider = this.waterVolumeTarget.GetComponent<BoxCollider>();
+//            if (boxCollider != null)
+//            {
+//                Vector3 size = new Vector3(columns * quadSegmentSize, BOX_COLLIDER_HEIGHT, rows * quadSegmentSize);
+//                boxCollider.size = size;
 
-                EditorUtility.SetDirty(boxCollider);
-            }
-        }
+//                Vector3 center = size / 2f;
+//                center.y *= -1f;
+//                boxCollider.center = center;
 
-        private void OnUndoRedoPerformed()
-        {
-            this.UpdateMesh(this.waterVolumeTarget.Rows, this.waterVolumeTarget.Columns, this.waterVolumeTarget.QuadSegmentSize);
-            this.UpdateBoxCollider(this.waterVolumeTarget.Rows, this.waterVolumeTarget.Columns, this.waterVolumeTarget.QuadSegmentSize);
-        }
-    }
-}
+//                EditorUtility.SetDirty(boxCollider);
+//            }
+//        }
+
+//        private void OnUndoRedoPerformed()
+//        {
+//            this.UpdateMesh(this.waterVolumeTarget.Rows, this.waterVolumeTarget.Columns, this.waterVolumeTarget.QuadSegmentSize);
+//            this.UpdateBoxCollider(this.waterVolumeTarget.Rows, this.waterVolumeTarget.Columns, this.waterVolumeTarget.QuadSegmentSize);
+//        }
+//    }
+//}

@@ -10,7 +10,10 @@ namespace NaughtyWaterBuoyancy
         public const string TAG = "Water Volume";
 
         [SerializeField]
-        private float density = 1f;
+        private float waterTemperature = 25f; // Water temperature in degrees Celsius
+
+        [SerializeField]
+        private float waterSalinity = 35f; // Water salinity in parts per thousand
 
         [SerializeField]
         private int rows = 10;
@@ -27,6 +30,8 @@ namespace NaughtyWaterBuoyancy
         private Mesh mesh;
         private Vector3[] meshLocalVertices;
         private Vector3[] meshWorldVertices;
+
+        private float density;
 
         public float Density
         {
@@ -75,6 +80,7 @@ namespace NaughtyWaterBuoyancy
 
         protected virtual void Awake()
         {
+            density = (999.842594f + 0.58f * waterSalinity + 6.793952e-2f * waterTemperature - 9.095290e-3f * waterTemperature * waterTemperature + 1.001685e-4f * waterTemperature * waterTemperature * waterTemperature - 1.120083e-6f * waterTemperature * waterTemperature * waterTemperature * waterTemperature + 6.536332e-9f * waterTemperature * waterTemperature * waterTemperature * waterTemperature * waterTemperature)/1000;
             this.CacheMeshVertices();
         }
 
