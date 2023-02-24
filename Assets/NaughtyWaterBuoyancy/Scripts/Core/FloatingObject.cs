@@ -122,24 +122,6 @@ namespace NaughtyWaterBuoyancy
             return maxBuoyancyForce;
         }
 
-        //private Vector3 CalculateMaxBuoyancyForce()
-        //{
-        //    float displacedWaterVolume = 0f;
-        //    for (int i = 0; i < this.voxels.Length; i++)
-        //    {
-        //        Vector3 worldPoint = this.transform.TransformPoint(this.voxels[i]);
-        //        float waterLevel = this.water.GetWaterLevel(worldPoint);
-        //        if (worldPoint.y < waterLevel)
-        //        {
-        //            float voxelVolume = Mathf.Abs(Vector3.Dot(this.voxelSize, this.water.transform.up));
-        //            float voxelSubmergedVolume = Mathf.Abs(worldPoint.y - waterLevel) * this.voxelSize.x * this.voxelSize.z;
-        //            displacedWaterVolume += voxelSubmergedVolume / voxelVolume;
-        //        }
-        //    }
-        //    Vector3 maxBuoyancyForce = -this.water.Density * Physics.gravity.y * displacedWaterVolume * this.water.transform.up;
-        //    return maxBuoyancyForce;
-        //}
-
         private Vector3[] CutIntoVoxels()
         {
             Quaternion initialRotation = this.transform.rotation;
